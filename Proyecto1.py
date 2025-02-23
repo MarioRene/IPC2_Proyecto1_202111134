@@ -314,11 +314,11 @@ class SistemaExperimentos:
 
     def mostrar_datos_estudiante(self):
         print("\n--- DATOS DEL ESTUDIANTE ---")
-        print("Nombre: Mario Rene Merida Taracena")
-        print("Carné: 202111134")
-        print("Curso: Introducción a la Programación y Computación 2")
-        print("Carrera: Ingeniería en Ciencias y Sistemas")
-        print("Semestre: 7mo semestre - 2025")
+        print("Nombre:                                                   Mario Rene Merida Taracena")
+        print("Carné:                                                                     202111134")
+        print("Curso:                                Introducción a la Programación y Computación 2")
+        print("Carrera:                                           Ingeniería en Ciencias y Sistemas")
+        print("Semestre:                                                        7mo semestre - 2025")
         print("Enlace a la documentación: https://github.com/MarioRene/IPC2_Proyecto1_202111134.git")
 
 # Menú principal
@@ -350,3 +350,4 @@ def menu_principal():
 
 if __name__ == "__main__":
     menu_principal()
+    
