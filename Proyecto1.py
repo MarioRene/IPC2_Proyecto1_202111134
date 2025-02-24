@@ -391,7 +391,7 @@ class SistemaExperimentos:
         print("Carné:                                                                     202111134")
         print("Curso:                                Introducción a la Programación y Computación 2")
         print("Carrera:                                           Ingeniería en Ciencias y Sistemas")
-        print("Semestre:                                                        7mo semestre - 2025")
+        print("Semestre:                                                        1er semestre - 2025")
         print("Enlace a la documentación: https://github.com/MarioRene/IPC2_Proyecto1_202111134.git")
 
 # Menú principal
