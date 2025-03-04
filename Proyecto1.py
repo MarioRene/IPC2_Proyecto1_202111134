@@ -1,5 +1,5 @@
-import xml.etree.ElementTree as ET #import XML library
-from graphviz import Digraph #import graph visualization library
+import xml.etree.ElementTree as ET
+from graphviz import Digraph
 
 # Estructuras de datos personalizadas
 class Nodo:
@@ -23,7 +23,7 @@ class ListaEnlazada:
             while actual.siguiente:
                 actual = actual.siguiente
             actual.siguiente = nuevo_nodo
-            
+
     # Dibujar la matriz en forma de grafo
     def mostrar(self):
         actual = self.cabeza
@@ -39,11 +39,11 @@ class Matriz:
     def __init__(self, filas, columnas):
         self.filas = filas
         self.columnas = columnas
-        self.datos = ListaEnlazada()  # Lista enlazada de filas
+        self.datos = ListaEnlazada()
         for _ in range(filas):
-            fila = ListaEnlazada()  # Cada fila es una lista enlazada de columnas
+            fila = ListaEnlazada()
             for _ in range(columnas):
-                fila.agregar("")  # Inicializar con valores vacíos
+                fila.agregar("")
             self.datos.agregar(fila)
 
     # Obtener el valor en la posición indicada
@@ -55,7 +55,7 @@ class Matriz:
         for _ in range(columna):
             nodo_columna = nodo_columna.siguiente
         return nodo_columna.valor
-    
+
     # Asignar el valor en la posición indicada
     def asignar(self, fila, columna, valor):
         fila_actual = self.datos.cabeza
@@ -84,7 +84,7 @@ class Pareja:
     def __init__(self, proteina1, proteina2):
         self.proteina1 = proteina1
         self.proteina2 = proteina2
-    
+
     # Método para mostrar la pareja de proteínas
     def __str__(self):
         return f"{self.proteina1} - {self.proteina2}"
@@ -95,9 +95,9 @@ class Experimento:
     # Constructor para inicializar un experimento con una rejilla de proteínas y una lista enlazada de parejas
     def __init__(self, nombre, filas, columnas):
         self.nombre = nombre
-        self.tejido = Matriz(filas, columnas)  # Usar la clase Matriz
-        self.parejas = ListaEnlazada()  # Usar una lista enlazada para las parejas
-    
+        self.tejido = Matriz(filas, columnas)
+        self.parejas = ListaEnlazada()
+
     # Agregar una pareja a la lista enlazada de parejas
     def mostrar(self):
         print(f"Experimento: {self.nombre}")
@@ -109,18 +109,18 @@ class Experimento:
             print(actual.valor)
             actual = actual.siguiente
 
-# Clase principal del sistema
+# Clase para manejar el sistema de experimentos
 class SistemaExperimentos:
     # Métodos de la clase SistemaExperimentos
-    # Constructor para inicializar el sistema con una lista enlazada para los experimentos
+    # Constructor para inicializar el catálogo de experimentos en la clase SistemaExperimentos
     def __init__(self):
         self.catalogo = ListaEnlazada()
-    
+
     # Método para mostrar el catálogo de experimentos
     def inicializar_sistema(self):
         self.catalogo = ListaEnlazada()
         print("Sistema inicializado correctamente.")
-    
+
     # Método para cargar el catálogo de experimentos desde un archivo XML
     def cargar_catalogo(self, ruta_archivo):
         try:
@@ -133,14 +133,12 @@ class SistemaExperimentos:
                 columnas = int(tejido.get('columnas'))
                 nuevo_experimento = Experimento(nombre, filas, columnas)
 
-                # Cargar la rejilla de proteínas
                 rejilla = tejido.find('rejilla').text.strip().split('\n')
                 for i in range(filas):
                     fila = rejilla[i].strip().split()
                     for j in range(columnas):
                         nuevo_experimento.tejido.asignar(i, j, fila[j])
 
-                # Cargar las parejas de proteínas
                 proteinas = experimento.find('proteinas')
                 for pareja in proteinas.findall('pareja'):
                     proteina1, proteina2 = pareja.text.strip().split()
@@ -151,7 +149,7 @@ class SistemaExperimentos:
             print("Catálogo de experimentos cargado con éxito.")
         except Exception as e:
             print(f"Error al cargar el archivo XML: {e}")
-    
+
     # Método para agregar un nuevo experimento al catálogo
     def desarrollar_experimento(self):
         print("\n--- DESARROLLAR EXPERIMENTO ---")
@@ -168,8 +166,8 @@ class SistemaExperimentos:
             return
         else:
             print("Opción inválida.")
-    
-    # Método para agregar un nuevo experimento al catálogo de forma manual
+
+    # Método para crear un experimento manualmente
     def crear_experimento_manual(self):
         nombre = input("Ingrese el nombre del experimento: ")
         filas = int(input("Ingrese el número de filas: "))
@@ -192,8 +190,8 @@ class SistemaExperimentos:
 
         self.catalogo.agregar(nuevo_experimento)
         print(f"Experimento '{nombre}' creado y añadido al catálogo.")
-    
-    # Método para modificar un experimento existente en el catálogo
+
+    # Método para modificar un experimento existente
     def cargar_desde_catalogo(self):
         if self.catalogo.cabeza is None:
             print("No hay experimentos en el catálogo.")
@@ -211,8 +209,8 @@ class SistemaExperimentos:
                 return
             actual = actual.siguiente
         print("Experimento no encontrado.")
-    
-    # Método para ejecutar un experimento
+
+    # Método para ejecutar un experimento existente
     def ejecutar_experimento(self, experimento):
         print("\n--- EJECUTAR EXPERIMENTO ---")
         print("1. Modificar")
@@ -234,8 +232,8 @@ class SistemaExperimentos:
             return
         else:
             print("Opción inválida.")
-    
-    # Método para modificar un experimento existente en el catálogo
+
+    # Método para modificar un experimento existente
     def modificar_experimento(self, experimento):
         print("\n--- MODIFICAR EXPERIMENTO ---")
         print("1. Cambiar nombre del experimento")
@@ -244,12 +242,12 @@ class SistemaExperimentos:
         print("4. Regresar al menú anterior")
         opcion = input("Seleccione una opción: ")
 
-        if opcion == "1":
+        if opcion == "1": # Cambiar nombre del experimento
             nuevo_nombre = input("Ingrese el nuevo nombre del experimento: ")
             experimento.nombre = nuevo_nombre
             print(f"Nombre del experimento cambiado a '{nuevo_nombre}'.")
 
-        elif opcion == "2":
+        elif opcion == "2": # Modificar rejilla de proteínas
             print("Ingrese la nueva rejilla de proteínas:")
             for i in range(experimento.tejido.filas):
                 fila = input(f"Ingrese la fila {i + 1} (separada por espacios): ").strip().split()
@@ -257,9 +255,9 @@ class SistemaExperimentos:
                     experimento.tejido.asignar(i, j, fila[j])
             print("Rejilla de proteínas actualizada.")
 
-        elif opcion == "3":
+        elif opcion == "3": # Modificar parejas de proteínas
             print("Ingrese las nuevas parejas de proteínas (separadas por espacios, una por línea, 'fin' para terminar):")
-            experimento.parejas = ListaEnlazada()  # Reiniciar la lista de parejas
+            experimento.parejas = ListaEnlazada()
             while True:
                 pareja = input().strip()
                 if pareja.lower() == 'fin':
@@ -268,13 +266,13 @@ class SistemaExperimentos:
                 experimento.parejas.agregar(Pareja(proteina1, proteina2))
             print("Parejas de proteínas actualizadas.")
 
-        elif opcion == "4":
-            return  # Regresar al menú anterior
+        elif opcion == "4": # Regresar al menú anterior
+            return
 
-        else:
-            print("Opción inválida.")
+        else: # Opción inválida
+            print("Opción inválida.") 
 
-    # Método para ejecutar un experimento directamente
+    # Método para ejecutar un experimento paso a paso
     def ejecutar_paso_a_paso(self, experimento):
         print("\n--- EJECUCIÓN PASO A PASO ---")
         rejilla = Matriz(experimento.tejido.filas, experimento.tejido.columnas)
@@ -284,80 +282,83 @@ class SistemaExperimentos:
 
         parejas = experimento.parejas
 
-        # Método para verificar si dos proteínas forman una pareja reactiva
+        # Método para verificar si una pareja de proteínas es reactiva
         def es_pareja_reactiva(proteina1, proteina2):
             actual = parejas.cabeza
             while actual:
                 if (proteina1 == actual.valor.proteina1 and proteina2 == actual.valor.proteina2) or \
-                   (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):
+                (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):
                     return True
                 actual = actual.siguiente
             return False
 
-        # Método para mostrar la rejilla con el título indicado
+        # Método para mostrar la rejilla
         def mostrar_rejilla(rejilla, titulo):
             print(f"\n--- {titulo} ---")
             rejilla.mostrar()
             print("-------------------")
 
-        paso = 0 # para mostrar la rejilla con el título indicado para cada paso de la ejecución
-        cambios = True # para verificar si hay cambios en la rejilla
+        paso = 0 # Inicializar el número de paso
+        mostrar_rejilla(rejilla, f"Paso {paso}") # Mostrar la rejilla inicial
 
-        mostrar_rejilla(rejilla, f"Paso {paso}")
-
-        # Mientras haya cambios en la rejilla, se ejecuta el algoritmo de la reactividad de proteínas
-        while cambios:
+        # Bucle para la ejecución del experimento
+        while True: # Bucle principal
             cambios = False
-            paso += 1
-
-            # Crear una nueva matriz para almacenar los cambios
             nueva_rejilla = Matriz(rejilla.filas, rejilla.columnas)
-            for i in range(rejilla.filas):
-                for j in range(rejilla.columnas):
+            for i in range(rejilla.filas): # Copiar la rejilla actual a la nueva rejilla 
+                for j in range(rejilla.columnas): 
                     nueva_rejilla.asignar(i, j, rejilla.obtener(i, j))
 
-            for i in range(rejilla.filas):
+            for i in range(rejilla.filas): # Recorrer la rejilla
                 for j in range(rejilla.columnas):
-                    if j < rejilla.columnas - 1 and es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(i, j + 1)):
-                        if rejilla.obtener(i, j) != "INERTE" and rejilla.obtener(i, j + 1) != "INERTE":
-                            nueva_rejilla.asignar(i, j, "INERTE")
-                            nueva_rejilla.asignar(i, j + 1, "INERTE")
-                            cambios = True
+                    if rejilla.obtener(i, j) == "INERTE":
+                        continue
 
-                    if i < rejilla.filas - 1 and es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(i + 1, j)):
-                        if rejilla.obtener(i, j) != "INERTE" and rejilla.obtener(i + 1, j) != "INERTE":
-                            nueva_rejilla.asignar(i, j, "INERTE")
-                            nueva_rejilla.asignar(i + 1, j, "INERTE")
-                            cambios = True
+                    # Revisar en todas las direcciones
+                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]: # Recorrer en todas las direcciones (arriba, abajo, izquierda, derecha)
+                        ni, nj = i + di, j + dj
+                        while 0 <= ni < rejilla.filas and 0 <= nj < rejilla.columnas: # Mientras esté dentro de la rejilla 
+                            if rejilla.obtener(ni, nj) == "INERTE": # Si la celda es inerte, seguir avanzando en la misma dirección
+                                ni += di
+                                nj += dj
+                                continue
+
+                            if es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(ni, nj)): # Si la pareja es reactiva
+                                nueva_rejilla.asignar(i, j, "INERTE")
+                                nueva_rejilla.asignar(ni, nj, "INERTE")
+                                cambios = True
+                                paso += 1  # Incrementar el número de paso
+                                print(f"Pareja inerte encontrada en ({i}, {j}) y ({ni}, {nj})")
+                                mostrar_rejilla(nueva_rejilla, f"Paso {paso}")
+                                break  # Salir del bucle de direcciones
+                            break  # Salir del bucle de direcciones
+
+            if not cambios:
+                break  # Si no hay cambios, terminar el bucle
 
             rejilla = nueva_rejilla
 
-            if cambios:
-                mostrar_rejilla(rejilla, f"Paso {paso}")
-
         total_celdas = rejilla.filas * rejilla.columnas
         celdas_inertes = 0
-        for i in range(rejilla.filas):
+        for i in range(rejilla.filas): # Contar las celdas inertes
             for j in range(rejilla.columnas):
                 if rejilla.obtener(i, j) == "INERTE":
                     celdas_inertes += 1
-        
-        # Calcular el porcentaje de las células inertes
-        porcentaje_inertes = (celdas_inertes / total_celdas) * 100
 
-        # Determinar el resultado final del experimento
-        if 30 <= porcentaje_inertes <= 60: # Medicamento exitoso
+        porcentaje_inertes = (celdas_inertes / total_celdas) * 100 # Calcular el porcentaje de celdas inertes
+
+        if 30 <= porcentaje_inertes <= 60: 
             resultado = "Medicamento exitoso"
-        elif porcentaje_inertes < 30: # Medicamento no efectivo
+        elif porcentaje_inertes < 30: 
             resultado = "Medicamento no efectivo"
-        else: # Medicamento fatal
+        else:
             resultado = "Medicamento fatal"
 
-        # Mostrar el resultado final del experimento
+        # Mostrar el resultado final
         print(f"\n--- RESULTADO FINAL ---")
         print(f"Porcentaje de células inertes: {porcentaje_inertes:.2f}%")
         print(f"Resultado: {resultado}")
-    
+
     # Método para ejecutar un experimento directamente
     def ejecutar_directamente(self, experimento):
         print("\n--- EJECUTAR DIRECTAMENTE ---")
@@ -368,7 +369,6 @@ class SistemaExperimentos:
 
         parejas = experimento.parejas
 
-        # Método para verificar si dos proteínas forman una pareja reactiva
         def es_pareja_reactiva(proteina1, proteina2):
             actual = parejas.cabeza
             while actual:
@@ -390,17 +390,23 @@ class SistemaExperimentos:
 
             for i in range(rejilla.filas):
                 for j in range(rejilla.columnas):
-                    if j < rejilla.columnas - 1 and es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(i, j + 1)):
-                        if rejilla.obtener(i, j) != "INERTE" and rejilla.obtener(i, j + 1) != "INERTE":
-                            nueva_rejilla.asignar(i, j, "INERTE")
-                            nueva_rejilla.asignar(i, j + 1, "INERTE")
-                            cambios = True
+                    if rejilla.obtener(i, j) == "INERTE":
+                        continue
 
-                    if i < rejilla.filas - 1 and es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(i + 1, j)):
-                        if rejilla.obtener(i, j) != "INERTE" and rejilla.obtener(i + 1, j) != "INERTE":
-                            nueva_rejilla.asignar(i, j, "INERTE")
-                            nueva_rejilla.asignar(i + 1, j, "INERTE")
-                            cambios = True
+                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        ni, nj = i + di, j + dj
+                        while 0 <= ni < rejilla.filas and 0 <= nj < rejilla.columnas:
+                            if rejilla.obtener(ni, nj) == "INERTE":
+                                ni += di
+                                nj += dj
+                                continue
+
+                            if es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(ni, nj)):
+                                nueva_rejilla.asignar(i, j, "INERTE")
+                                nueva_rejilla.asignar(ni, nj, "INERTE")
+                                cambios = True
+                                break
+                            break
 
             rejilla = nueva_rejilla
 
@@ -424,21 +430,18 @@ class SistemaExperimentos:
         print(f"Porcentaje de células inertes: {porcentaje_inertes:.2f}%")
         print(f"Resultado: {resultado}")
 
-    # Método para mostrar los resultados de un experimento con Graphviz
+    # Método para mostrar los resultados con Graphviz
     def mostrar_resultados_con_graphviz(self, experimento):
         print("\n--- RESULTADOS CON GRAPHVIZ ---")
         
-        # Crear gráfico para el estado inicial
         dot_inicial = Digraph(comment='Estado Inicial')
         dot_inicial.attr('node', shape='square')
         
-        # Añadir nodos y arcos para el estado inicial
         for i in range(experimento.tejido.filas):
             for j in range(experimento.tejido.columnas):
                 valor = experimento.tejido.obtener(i, j)
                 dot_inicial.node(f'{i}_{j}', label=valor)
         
-        # Añadir arcos para las parejas reactivas
         for i in range(experimento.tejido.filas):
             for j in range(experimento.tejido.columnas):
                 if j < experimento.tejido.columnas - 1:
@@ -446,11 +449,9 @@ class SistemaExperimentos:
                 if i < experimento.tejido.filas - 1:
                     dot_inicial.edge(f'{i}_{j}', f'{i+1}_{j}')
         
-        # Generar y mostrar el gráfico del estado inicial
         dot_inicial.render('estado_inicial.gv', view=True)
         print("Gráfico del estado inicial generado y mostrado.")
 
-        # Crear gráfico para el estado final
         rejilla_final = Matriz(experimento.tejido.filas, experimento.tejido.columnas)
         for i in range(experimento.tejido.filas):
             for j in range(experimento.tejido.columnas):
@@ -458,7 +459,6 @@ class SistemaExperimentos:
 
         parejas = experimento.parejas
 
-        # Método para verificar si dos proteínas forman una pareja reactiva
         def es_pareja_reactiva(proteina1, proteina2):
             actual = parejas.cabeza
             while actual:
@@ -470,7 +470,6 @@ class SistemaExperimentos:
 
         cambios = True
 
-        # Ejecutar el algoritmo de la reactividad de proteínas
         while cambios:
             cambios = False
 
@@ -481,17 +480,23 @@ class SistemaExperimentos:
 
             for i in range(rejilla_final.filas):
                 for j in range(rejilla_final.columnas):
-                    if j < rejilla_final.columnas - 1 and es_pareja_reactiva(rejilla_final.obtener(i, j), rejilla_final.obtener(i, j + 1)):
-                        if rejilla_final.obtener(i, j) != "INERTE" and rejilla_final.obtener(i, j + 1) != "INERTE":
-                            nueva_rejilla.asignar(i, j, "INERTE")
-                            nueva_rejilla.asignar(i, j + 1, "INERTE")
-                            cambios = True
+                    if rejilla_final.obtener(i, j) == "INERTE":
+                        continue
 
-                    if i < rejilla_final.filas - 1 and es_pareja_reactiva(rejilla_final.obtener(i, j), rejilla_final.obtener(i + 1, j)):
-                        if rejilla_final.obtener(i, j) != "INERTE" and rejilla_final.obtener(i + 1, j) != "INERTE":
-                            nueva_rejilla.asignar(i, j, "INERTE")
-                            nueva_rejilla.asignar(i + 1, j, "INERTE")
-                            cambios = True
+                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        ni, nj = i + di, j + dj
+                        while 0 <= ni < rejilla_final.filas and 0 <= nj < rejilla_final.columnas:
+                            if rejilla_final.obtener(ni, nj) == "INERTE":
+                                ni += di
+                                nj += dj
+                                continue
+
+                            if es_pareja_reactiva(rejilla_final.obtener(i, j), rejilla_final.obtener(ni, nj)):
+                                nueva_rejilla.asignar(i, j, "INERTE")
+                                nueva_rejilla.asignar(ni, nj, "INERTE")
+                                cambios = True
+                                break
+                            break
 
             rejilla_final = nueva_rejilla
 
@@ -513,17 +518,17 @@ class SistemaExperimentos:
         dot_final.render('estado_final.gv', view=True)
         print("Gráfico del estado final generado y mostrado.")
 
-    # Método para mostrar mi información
+    # Método para Mostrar mis datos
     def mostrar_datos_estudiante(self):
         print("\n--- DATOS DEL ESTUDIANTE ---")
-        print("Nombre:                                                   Mario Rene Merida Taracena")
-        print("Carné:                                                                     202111134")
-        print("Curso:                                Introducción a la Programación y Computación 2")
-        print("Carrera:                                           Ingeniería en Ciencias y Sistemas")
-        print("Semestre:                                                        1er semestre - 2025")
+        print("Nombre: Mario Rene Merida Taracena")
+        print("Carné: 202111134")
+        print("Curso: Introducción a la Programación y Computación 2")
+        print("Carrera: Ingeniería en Ciencias y Sistemas")
+        print("Semestre: 1er semestre - 2025")
         print("Enlace a la documentación: https://github.com/MarioRene/IPC2_Proyecto1_202111134.git")
 
-# Menú principal
+# Método para ejecutar el programa principal
 def menu_principal():
     sistema = SistemaExperimentos()
     while True:
@@ -536,15 +541,19 @@ def menu_principal():
         print("6. Salir")
         opcion = input("Seleccione una opción: ")
 
-        if opcion == "1":
-            sistema.inicializar_sistema()
+        if opcion == "1": 
+            sistema.inicializar_sistema() 
+            print()
         elif opcion == "2":
             ruta_archivo = input("Ingrese la ruta del archivo XML: ")
             sistema.cargar_catalogo(ruta_archivo)
+            print()
         elif opcion == "3":
             sistema.desarrollar_experimento()
+            print()
         elif opcion == "4":
             sistema.mostrar_datos_estudiante()
+            print()
         elif opcion == "5":
             if sistema.catalogo.cabeza is None:
                 print("No hay experimentos en el catálogo.")
@@ -562,13 +571,15 @@ def menu_principal():
                         return
                     actual = actual.siguiente
                 print("Experimento no encontrado.")
+            print()
         elif opcion == "6":
             print("Saliendo del sistema...")
+            print()
             break
         else:
             print("Opción inválida.")
+            print()
 
 # Ejecutar el programa principal
 if __name__ == "__main__":
     menu_principal()
-
