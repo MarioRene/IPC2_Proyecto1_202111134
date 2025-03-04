@@ -434,24 +434,28 @@ class SistemaExperimentos:
     def mostrar_resultados_con_graphviz(self, experimento):
         print("\n--- RESULTADOS CON GRAPHVIZ ---")
         
+        # Crear gráfico para el estado inicial
         dot_inicial = Digraph(comment='Estado Inicial')
-        dot_inicial.attr('node', shape='square')
-        
+        dot_inicial.attr('node', shape='plaintext')  # Usar formato de texto plano para la tabla
+
+        # Crear la tabla para el estado inicial
+        tabla_inicial = '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0">'
         for i in range(experimento.tejido.filas):
+            tabla_inicial += '<TR>'
             for j in range(experimento.tejido.columnas):
                 valor = experimento.tejido.obtener(i, j)
-                dot_inicial.node(f'{i}_{j}', label=valor)
-        
-        for i in range(experimento.tejido.filas):
-            for j in range(experimento.tejido.columnas):
-                if j < experimento.tejido.columnas - 1:
-                    dot_inicial.edge(f'{i}_{j}', f'{i}_{j+1}')
-                if i < experimento.tejido.filas - 1:
-                    dot_inicial.edge(f'{i}_{j}', f'{i+1}_{j}')
-        
+                tabla_inicial += f'<TD BGCOLOR="white">{valor}</TD>'
+            tabla_inicial += '</TR>'
+        tabla_inicial += '</TABLE>>'
+
+        # Añadir la tabla como un nodo
+        dot_inicial.node('TablaInicial', label=tabla_inicial)
+
+        # Generar y mostrar el gráfico del estado inicial
         dot_inicial.render('estado_inicial.gv', view=True)
         print("Gráfico del estado inicial generado y mostrado.")
 
+        # Crear gráfico para el estado final
         rejilla_final = Matriz(experimento.tejido.filas, experimento.tejido.columnas)
         for i in range(experimento.tejido.filas):
             for j in range(experimento.tejido.columnas):
@@ -463,13 +467,14 @@ class SistemaExperimentos:
             actual = parejas.cabeza
             while actual:
                 if (proteina1 == actual.valor.proteina1 and proteina2 == actual.valor.proteina2) or \
-                   (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):
+                (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):
                     return True
                 actual = actual.siguiente
             return False
 
         cambios = True
 
+        # Ejecutar el algoritmo de la reactividad de proteínas
         while cambios:
             cambios = False
 
@@ -500,21 +505,28 @@ class SistemaExperimentos:
 
             rejilla_final = nueva_rejilla
 
+        # Crear gráfico para el estado final
         dot_final = Digraph(comment='Estado Final')
-        dot_final.attr('node', shape='square')
-        
+        dot_final.attr('node', shape='plaintext')  # Usar formato de texto plano para la tabla
+
+        # Crear la tabla para el estado final
+        tabla_final = '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0">'
         for i in range(rejilla_final.filas):
+            tabla_final += '<TR>'
             for j in range(rejilla_final.columnas):
                 valor = rejilla_final.obtener(i, j)
-                dot_final.node(f'{i}_{j}', label=valor)
-        
-        for i in range(rejilla_final.filas):
-            for j in range(rejilla_final.columnas):
-                if j < rejilla_final.columnas - 1:
-                    dot_final.edge(f'{i}_{j}', f'{i}_{j+1}')
-                if i < rejilla_final.filas - 1:
-                    dot_final.edge(f'{i}_{j}', f'{i+1}_{j}')
-        
+                # Cambiar el color de las células inertes
+                if valor == "INERTE":
+                    tabla_final += f'<TD BGCOLOR="red"><FONT COLOR="white">{valor}</FONT></TD>'
+                else:
+                    tabla_final += f'<TD BGCOLOR="white">{valor}</TD>'
+            tabla_final += '</TR>'
+        tabla_final += '</TABLE>>'
+
+        # Añadir la tabla como un nodo
+        dot_final.node('TablaFinal', label=tabla_final)
+
+        # Generar y mostrar el gráfico del estado final
         dot_final.render('estado_final.gv', view=True)
         print("Gráfico del estado final generado y mostrado.")
 
