@@ -91,14 +91,12 @@ class Pareja:
 
 # Clase para manejar los experimentos
 class Experimento:
-    # Métodos de la clase Experimento
-    # Constructor para inicializar un experimento con una rejilla de proteínas y una lista enlazada de parejas
     def __init__(self, nombre, filas, columnas):
         self.nombre = nombre
         self.tejido = Matriz(filas, columnas)
         self.parejas = ListaEnlazada()
+        self.limite = None  # Nuevo atributo para el límite de pasos
 
-    # Agregar una pareja a la lista enlazada de parejas
     def mostrar(self):
         print(f"Experimento: {self.nombre}")
         print("Rejilla de proteínas:")
@@ -108,6 +106,11 @@ class Experimento:
         while actual:
             print(actual.valor)
             actual = actual.siguiente
+        print(f"Límite de pasos: {self.limite}")  # Mostrar el límite de pasos
+        print(f"Número de pasos: {self.numero_pasos}")  # Mostrar el número de pasos
+    # Métodos de la clase Experimento
+    # Constructor para inicializar un experimento con una rejilla de proteínas y una lista enlazada de parejas
+
 
 # Clase para manejar el sistema de experimentos
 class SistemaExperimentos:
@@ -132,6 +135,11 @@ class SistemaExperimentos:
                 filas = int(tejido.get('filas'))
                 columnas = int(tejido.get('columnas'))
                 nuevo_experimento = Experimento(nombre, filas, columnas)
+
+                # Leer el límite de pasos
+                limite = experimento.find('limite')
+                if limite is not None:
+                    nuevo_experimento.limite = int(limite.text.strip())
 
                 rejilla = tejido.find('rejilla').text.strip().split('\n')
                 for i in range(filas):
@@ -282,7 +290,6 @@ class SistemaExperimentos:
 
         parejas = experimento.parejas
 
-        # Método para verificar si una pareja de proteínas es reactiva
         def es_pareja_reactiva(proteina1, proteina2):
             actual = parejas.cabeza
             while actual:
@@ -292,69 +299,66 @@ class SistemaExperimentos:
                 actual = actual.siguiente
             return False
 
-        # Método para mostrar la rejilla
         def mostrar_rejilla(rejilla, titulo):
             print(f"\n--- {titulo} ---")
             rejilla.mostrar()
             print("-------------------")
 
-        paso = 0 # Inicializar el número de paso
-        mostrar_rejilla(rejilla, f"Paso {paso}") # Mostrar la rejilla inicial
+        paso = 0
+        mostrar_rejilla(rejilla, f"Paso {paso} (Estado Inicial)")  # Mostrar estado inicial
 
-        # Bucle para la ejecución del experimento
-        while True: # Bucle principal
+        while paso < experimento.limite:  # Respetar el límite de pasos
             cambios = False
             nueva_rejilla = Matriz(rejilla.filas, rejilla.columnas)
-            for i in range(rejilla.filas): # Copiar la rejilla actual a la nueva rejilla 
-                for j in range(rejilla.columnas): 
+            for i in range(rejilla.filas):
+                for j in range(rejilla.columnas):
                     nueva_rejilla.asignar(i, j, rejilla.obtener(i, j))
 
-            for i in range(rejilla.filas): # Recorrer la rejilla
+            for i in range(rejilla.filas):
                 for j in range(rejilla.columnas):
                     if rejilla.obtener(i, j) == "INERTE":
                         continue
 
-                    # Revisar en todas las direcciones
-                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]: # Recorrer en todas las direcciones (arriba, abajo, izquierda, derecha)
+                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                         ni, nj = i + di, j + dj
-                        while 0 <= ni < rejilla.filas and 0 <= nj < rejilla.columnas: # Mientras esté dentro de la rejilla 
-                            if rejilla.obtener(ni, nj) == "INERTE": # Si la celda es inerte, seguir avanzando en la misma dirección
+                        while 0 <= ni < rejilla.filas and 0 <= nj < rejilla.columnas:
+                            if rejilla.obtener(ni, nj) == "INERTE":
                                 ni += di
                                 nj += dj
                                 continue
 
-                            if es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(ni, nj)): # Si la pareja es reactiva
+                            if es_pareja_reactiva(rejilla.obtener(i, j), rejilla.obtener(ni, nj)):
                                 nueva_rejilla.asignar(i, j, "INERTE")
                                 nueva_rejilla.asignar(ni, nj, "INERTE")
                                 cambios = True
-                                paso += 1  # Incrementar el número de paso
-                                print(f"Pareja inerte encontrada en ({i}, {j}) y ({ni}, {nj})")
-                                mostrar_rejilla(nueva_rejilla, f"Paso {paso}")
-                                break  # Salir del bucle de direcciones
-                            break  # Salir del bucle de direcciones
+                                break
+                            break
 
             if not cambios:
-                break  # Si no hay cambios, terminar el bucle
+                break
 
             rejilla = nueva_rejilla
+            paso += 1
+
+            if paso <= experimento.limite:  # Mostrar solo los pasos dentro del límite
+                mostrar_rejilla(rejilla, f"Paso {paso}")
 
         total_celdas = rejilla.filas * rejilla.columnas
         celdas_inertes = 0
-        for i in range(rejilla.filas): # Contar las celdas inertes
+        for i in range(rejilla.filas):
             for j in range(rejilla.columnas):
                 if rejilla.obtener(i, j) == "INERTE":
                     celdas_inertes += 1
 
-        porcentaje_inertes = (celdas_inertes / total_celdas) * 100 # Calcular el porcentaje de celdas inertes
+        porcentaje_inertes = (celdas_inertes / total_celdas) * 100
 
-        if 30 <= porcentaje_inertes <= 60: 
+        if 30 <= porcentaje_inertes <= 60:
             resultado = "Medicamento exitoso"
-        elif porcentaje_inertes < 30: 
+        elif porcentaje_inertes < 30:
             resultado = "Medicamento no efectivo"
         else:
             resultado = "Medicamento fatal"
 
-        # Mostrar el resultado final
         print(f"\n--- RESULTADO FINAL ---")
         print(f"Porcentaje de células inertes: {porcentaje_inertes:.2f}%")
         print(f"Resultado: {resultado}")
@@ -373,14 +377,15 @@ class SistemaExperimentos:
             actual = parejas.cabeza
             while actual:
                 if (proteina1 == actual.valor.proteina1 and proteina2 == actual.valor.proteina2) or \
-                   (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):
-                    return True
+                   (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):v
+                return True
                 actual = actual.siguiente
             return False
 
         cambios = True
+        paso = 0
 
-        while cambios:
+        while cambios and paso < experimento.limite:  # Respetar el límite de pasos
             cambios = False
 
             nueva_rejilla = Matriz(rejilla.filas, rejilla.columnas)
@@ -409,6 +414,7 @@ class SistemaExperimentos:
                             break
 
             rejilla = nueva_rejilla
+            paso += 1
 
         total_celdas = rejilla.filas * rejilla.columnas
         celdas_inertes = 0
@@ -433,17 +439,39 @@ class SistemaExperimentos:
     # Método para mostrar los resultados con Graphviz
     def mostrar_resultados_con_graphviz(self, experimento):
         print("\n--- RESULTADOS CON GRAPHVIZ ---")
-        
-        # Crear gráfico para el estado inicial
+        print("1. Evaluar directamente (resultado final)")
+        print("2. Evaluar paso a paso (generar PDF por cada pareja inerte)")
+        print("3. Regresar al menú anterior")
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            self.evaluar_directamente(experimento)
+        elif opcion == "2":
+            self.evaluar_paso_a_paso(experimento)
+        elif opcion == "3":
+            return
+        else:
+            print("Opción inválida.")
+
+    def evaluar_directamente(self, experimento):
+        print("\n--- EVALUAR DIRECTAMENTE ---")
+
+        # Crear una copia de la rejilla inicial
+        rejilla_actual = Matriz(experimento.tejido.filas, experimento.tejido.columnas)
+        for i in range(experimento.tejido.filas):
+            for j in range(experimento.tejido.columnas):
+                rejilla_actual.asignar(i, j, experimento.tejido.obtener(i, j))
+
+        # Generar el gráfico del estado inicial
         dot_inicial = Digraph(comment='Estado Inicial')
         dot_inicial.attr('node', shape='plaintext')  # Usar formato de texto plano para la tabla
 
         # Crear la tabla para el estado inicial
         tabla_inicial = '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0">'
-        for i in range(experimento.tejido.filas):
+        for i in range(rejilla_actual.filas):
             tabla_inicial += '<TR>'
-            for j in range(experimento.tejido.columnas):
-                valor = experimento.tejido.obtener(i, j)
+            for j in range(rejilla_actual.columnas):
+                valor = rejilla_actual.obtener(i, j)
                 tabla_inicial += f'<TD BGCOLOR="white">{valor}</TD>'
             tabla_inicial += '</TR>'
         tabla_inicial += '</TABLE>>'
@@ -451,18 +479,14 @@ class SistemaExperimentos:
         # Añadir la tabla como un nodo
         dot_inicial.node('TablaInicial', label=tabla_inicial)
 
-        # Generar y mostrar el gráfico del estado inicial
-        dot_inicial.render('estado_inicial.gv', view=True)
-        print("Gráfico del estado inicial generado y mostrado.")
-
-        # Crear gráfico para el estado final
-        rejilla_final = Matriz(experimento.tejido.filas, experimento.tejido.columnas)
-        for i in range(experimento.tejido.filas):
-            for j in range(experimento.tejido.columnas):
-                rejilla_final.asignar(i, j, experimento.tejido.obtener(i, j))
+        # Guardar el archivo PDF del estado inicial
+        output_path_inicial = 'estado_inicial.gv'
+        dot_inicial.render(output_path_inicial, view=False, format='pdf')
+        print(f"Gráfico del estado inicial generado en {output_path_inicial}.pdf")
 
         parejas = experimento.parejas
 
+        # Función para verificar si una pareja de proteínas es reactiva
         def es_pareja_reactiva(proteina1, proteina2):
             actual = parejas.cabeza
             while actual:
@@ -474,47 +498,52 @@ class SistemaExperimentos:
 
         cambios = True
 
-        # Ejecutar el algoritmo de la reactividad de proteínas
+        # Bucle principal para ejecutar el experimento
         while cambios:
             cambios = False
 
-            nueva_rejilla = Matriz(rejilla_final.filas, rejilla_final.columnas)
-            for i in range(rejilla_final.filas):
-                for j in range(rejilla_final.columnas):
-                    nueva_rejilla.asignar(i, j, rejilla_final.obtener(i, j))
+            # Crear una nueva rejilla para el siguiente paso
+            nueva_rejilla = Matriz(rejilla_actual.filas, rejilla_actual.columnas)
+            for i in range(rejilla_actual.filas):
+                for j in range(rejilla_actual.columnas):
+                    nueva_rejilla.asignar(i, j, rejilla_actual.obtener(i, j))
 
-            for i in range(rejilla_final.filas):
-                for j in range(rejilla_final.columnas):
-                    if rejilla_final.obtener(i, j) == "INERTE":
+            # Recorrer la rejilla actual para buscar parejas reactivas
+            for i in range(rejilla_actual.filas):
+                for j in range(rejilla_actual.columnas):
+                    if rejilla_actual.obtener(i, j) == "INERTE":
                         continue
 
+                    # Revisar en todas las direcciones (arriba, abajo, izquierda, derecha)
                     for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
                         ni, nj = i + di, j + dj
-                        while 0 <= ni < rejilla_final.filas and 0 <= nj < rejilla_final.columnas:
-                            if rejilla_final.obtener(ni, nj) == "INERTE":
+                        while 0 <= ni < rejilla_actual.filas and 0 <= nj < rejilla_actual.columnas:
+                            if rejilla_actual.obtener(ni, nj) == "INERTE":
                                 ni += di
                                 nj += dj
                                 continue
 
-                            if es_pareja_reactiva(rejilla_final.obtener(i, j), rejilla_final.obtener(ni, nj)):
+                            # Si se encuentra una pareja reactiva, marcar ambas células como inertes
+                            if es_pareja_reactiva(rejilla_actual.obtener(i, j), rejilla_actual.obtener(ni, nj)):
                                 nueva_rejilla.asignar(i, j, "INERTE")
                                 nueva_rejilla.asignar(ni, nj, "INERTE")
                                 cambios = True
                                 break
                             break
 
-            rejilla_final = nueva_rejilla
+            # Actualizar la rejilla actual para el siguiente paso
+            rejilla_actual = nueva_rejilla
 
-        # Crear gráfico para el estado final
+        # Generar el gráfico del estado final
         dot_final = Digraph(comment='Estado Final')
         dot_final.attr('node', shape='plaintext')  # Usar formato de texto plano para la tabla
 
         # Crear la tabla para el estado final
         tabla_final = '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0">'
-        for i in range(rejilla_final.filas):
+        for i in range(rejilla_actual.filas):
             tabla_final += '<TR>'
-            for j in range(rejilla_final.columnas):
-                valor = rejilla_final.obtener(i, j)
+            for j in range(rejilla_actual.columnas):
+                valor = rejilla_actual.obtener(i, j)
                 # Cambiar el color de las células inertes
                 if valor == "INERTE":
                     tabla_final += f'<TD BGCOLOR="red"><FONT COLOR="white">{valor}</FONT></TD>'
@@ -526,9 +555,113 @@ class SistemaExperimentos:
         # Añadir la tabla como un nodo
         dot_final.node('TablaFinal', label=tabla_final)
 
-        # Generar y mostrar el gráfico del estado final
-        dot_final.render('estado_final.gv', view=True)
-        print("Gráfico del estado final generado y mostrado.")
+        # Guardar el archivo PDF del estado final
+        output_path_final = 'estado_final.gv'
+        dot_final.render(output_path_final, view=False, format='pdf')
+        print(f"Gráfico del estado final generado en {output_path_final}.pdf")
+
+    def evaluar_paso_a_paso(self, experimento):
+        print("\n--- EVALUAR PASO A PASO ---")
+
+        # Crear una copia de la rejilla inicial
+        rejilla_actual = Matriz(experimento.tejido.filas, experimento.tejido.columnas)
+        for i in range(experimento.tejido.filas):
+            for j in range(experimento.tejido.columnas):
+                rejilla_actual.asignar(i, j, experimento.tejido.obtener(i, j))
+
+        parejas = experimento.parejas
+
+        # Función para verificar si una pareja de proteínas es reactiva
+        def es_pareja_reactiva(proteina1, proteina2):
+            actual = parejas.cabeza
+            while actual:
+                if (proteina1 == actual.valor.proteina1 and proteina2 == actual.valor.proteina2) or \
+                (proteina1 == actual.valor.proteina2 and proteina2 == actual.valor.proteina1):
+                    return True
+                actual = actual.siguiente
+            return False
+
+        # Función para generar un PDF de la rejilla actual
+        def generar_pdf(rejilla, paso):
+            dot = Digraph(comment=f'Paso {paso}')
+            dot.attr('node', shape='plaintext')  # Usar formato de texto plano para la tabla
+
+            # Crear la tabla para este paso
+            tabla = '<<TABLE BORDER="1" CELLBORDER="1" CELLSPACING="0">'
+            for i in range(rejilla.filas):
+                tabla += '<TR>'
+                for j in range(rejilla.columnas):
+                    valor = rejilla.obtener(i, j)
+                    # Cambiar el color de las células inertes
+                    if valor == "INERTE":
+                        tabla += f'<TD BGCOLOR="red"><FONT COLOR="white">{valor}</FONT></TD>'
+                    else:
+                        tabla += f'<TD BGCOLOR="white">{valor}</TD>'
+                tabla += '</TR>'
+            tabla += '</TABLE>>'
+
+            # Añadir la tabla como un nodo
+            dot.node(f'TablaPaso{paso}', label=tabla)
+
+            # Guardar el archivo PDF
+            output_path = f'paso_{paso}.gv'
+            dot.render(output_path, view=False, format='pdf')
+            print(f"Gráfico del paso {paso} generado en {output_path}.pdf")
+
+        # Generar el PDF del estado inicial (Paso 0)
+        generar_pdf(rejilla_actual, 0)
+
+        paso = 1  # Iniciar el contador de pasos
+
+        # Bucle principal para ejecutar el experimento paso a paso
+        while paso <= experimento.limite:  # Respetar el límite de pasos
+            cambios = False
+
+            # Crear una nueva rejilla para el siguiente paso
+            nueva_rejilla = Matriz(rejilla_actual.filas, rejilla_actual.columnas)
+            for i in range(rejilla_actual.filas):
+                for j in range(rejilla_actual.columnas):
+                    nueva_rejilla.asignar(i, j, rejilla_actual.obtener(i, j))
+
+            # Recorrer la rejilla actual para buscar parejas reactivas
+            for i in range(rejilla_actual.filas):
+                for j in range(rejilla_actual.columnas):
+                    if rejilla_actual.obtener(i, j) == "INERTE":
+                        continue
+
+                    # Revisar en todas las direcciones (arriba, abajo, izquierda, derecha)
+                    for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+                        ni, nj = i + di, j + dj
+                        while 0 <= ni < rejilla_actual.filas and 0 <= nj < rejilla_actual.columnas:
+                            if rejilla_actual.obtener(ni, nj) == "INERTE":
+                                ni += di
+                                nj += dj
+                                continue
+
+                            # Si se encuentra una pareja reactiva, marcar ambas células como inertes
+                            if es_pareja_reactiva(rejilla_actual.obtener(i, j), rejilla_actual.obtener(ni, nj)):
+                                nueva_rejilla.asignar(i, j, "INERTE")
+                                nueva_rejilla.asignar(ni, nj, "INERTE")
+                                cambios = True
+                                break
+                            break
+
+            # Si no hay cambios, salir del bucle
+            if not cambios:
+                break
+
+            # Actualizar la rejilla actual para el siguiente paso
+            rejilla_actual = nueva_rejilla
+
+            # Generar el PDF del paso actual
+            generar_pdf(rejilla_actual, paso)
+
+            # Incrementar el número de paso
+            paso += 1
+
+        # Mostrar el resultado final
+        print("\n--- RESULTADO FINAL ---")
+        print(f"Total de pasos ejecutados: {paso - 1}")
 
     # Método para Mostrar mis datos
     def mostrar_datos_estudiante(self):
